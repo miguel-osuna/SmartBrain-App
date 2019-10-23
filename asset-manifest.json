@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/miguel-osuna/SmartBrain-App/static/css/main.93cd76d9.chunk.css",
+    "main.js": "/miguel-osuna/SmartBrain-App/static/js/main.faeaa54c.chunk.js",
+    "main.js.map": "/miguel-osuna/SmartBrain-App/static/js/main.faeaa54c.chunk.js.map",
+    "runtime-main.js": "/miguel-osuna/SmartBrain-App/static/js/runtime-main.6f1bc00b.js",
+    "runtime-main.js.map": "/miguel-osuna/SmartBrain-App/static/js/runtime-main.6f1bc00b.js.map",
+    "static/css/2.eb45ad44.chunk.css": "/miguel-osuna/SmartBrain-App/static/css/2.eb45ad44.chunk.css",
+    "static/js/2.54f54608.chunk.js": "/miguel-osuna/SmartBrain-App/static/js/2.54f54608.chunk.js",
+    "static/js/2.54f54608.chunk.js.map": "/miguel-osuna/SmartBrain-App/static/js/2.54f54608.chunk.js.map",
+    "index.html": "/miguel-osuna/SmartBrain-App/index.html",
+    "precache-manifest.e1bc1bd9281c911d69e5b4ea77106cd3.js": "/miguel-osuna/SmartBrain-App/precache-manifest.e1bc1bd9281c911d69e5b4ea77106cd3.js",
+    "service-worker.js": "/miguel-osuna/SmartBrain-App/service-worker.js",
+    "static/css/2.eb45ad44.chunk.css.map": "/miguel-osuna/SmartBrain-App/static/css/2.eb45ad44.chunk.css.map",
+    "static/css/main.93cd76d9.chunk.css.map": "/miguel-osuna/SmartBrain-App/static/css/main.93cd76d9.chunk.css.map",
+    "static/media/brain.png": "/miguel-osuna/SmartBrain-App/static/media/brain.584371a1.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6f1bc00b.js",
+    "static/css/2.eb45ad44.chunk.css",
+    "static/js/2.54f54608.chunk.js",
+    "static/css/main.93cd76d9.chunk.css",
+    "static/js/main.faeaa54c.chunk.js"
+  ]
+}
