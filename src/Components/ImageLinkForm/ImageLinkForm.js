@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import "./ImageLinkForm.css";
 
-const ImageLinkForm = () => {
+const ImageLinkForm = ({ onInputChange, onButtonSubmit, onEnterSubmit }) => {
   return (
     <Fragment>
       <div>
@@ -13,9 +13,14 @@ const ImageLinkForm = () => {
             <input
               className="f4 pa2 w-70 center"
               type="text"
-              placeHolder="Enter your link"
+              placeholder="Enter your link"
+              onChange={onInputChange}
+              onKeyDown={onEnterSubmit}
             />
-            <button className="w-30 grow f4 link ph3 pv2 dib white bg-light-blue">
+            <button
+              className="w-30 grow f4 link ph3 pv2 dib white bg-light-blue"
+              onClick={onButtonSubmit}
+            >
               {" "}
               Detect{" "}
             </button>

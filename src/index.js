@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "tachyons";
 import "react-tilt";
+import "clarifai";
 import "./index.css";
 import App from "./Containers/App";
 import * as serviceWorker from "./serviceWorker";
