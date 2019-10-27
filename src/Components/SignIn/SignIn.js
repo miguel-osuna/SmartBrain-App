@@ -3,7 +3,7 @@ import React, { Fragment } from "react";
 const SignIn = ({ onRouteChange }) => {
   return (
     <Fragment>
-      <article className="br2 ba shadow-4 b--white-10 mv4 w-100 w-50-m w-25-l mw5 center">
+      <article className="br2 ba shadow-4 b--white-10 mv4 w-100 w-50-m w-25-l mw10 center">
         <main className="pa4 white-80">
           <div className="measure">
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
@@ -40,12 +40,12 @@ const SignIn = ({ onRouteChange }) => {
               />
             </div>
             <div className="lh-copy mt3">
-              <p
+              <input
+                className="white bn br3 ph3 pv2 input-reset ba bg-transparent grow pointer f6 dib"
+                type="submit"
+                value="Register"
                 onClick={() => onRouteChange("register")}
-                className="f6 link dim white db pointer"
-              >
-                Register
-              </p>
+              />
             </div>
           </div>
         </main>
