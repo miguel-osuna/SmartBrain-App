@@ -26,9 +26,29 @@ class App extends Component {
       image_url: "",
       box: {},
       route: "signin",
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        password: "",
+        entries: 0,
+        joined: ""
+      }
     };
   }
+
+  loadUser = data => {
+    this.setState({
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.joined
+      }
+    });
+  };
 
   onInputChange = event => {
     // Adds the text input to property user_input
@@ -63,9 +83,22 @@ class App extends Component {
         // Using image_url can lead to a 404 Bad Request
         this.state.user_input
       )
-      .then(response =>
-        this.displayFaceLimits(this.calculateFaceLimits(response))
-      )
+      .then(response => {
+        if (response) {
+          fetch("http://localhost:5000/image", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
+            .then(response => response.json())
+            .then(count => {
+              this.setState(Object.assign(this.state.user, { entries: count }));
+            });
+        }
+        this.displayFaceLimits(this.calculateFaceLimits(response));
+      })
       .catch(err => console.log(err));
   };
 
@@ -81,9 +114,24 @@ class App extends Component {
           // Using image_url can lead to a 404 Bad Request
           this.state.user_input
         )
-        .then(response =>
-          this.displayFaceLimits(this.calculateFaceLimits(response))
-        )
+        .then(response => {
+          if (response) {
+            fetch("http://localhost:5000/image", {
+              method: "put",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: this.state.user.id
+              })
+            })
+              .then(response => response.json())
+              .then(count => {
+                this.setState(
+                  Object.assign(this.state.user, { entries: count })
+                );
+              });
+          }
+          this.displayFaceLimits(this.calculateFaceLimits(response));
+        })
         .catch(err => console.log(err));
     }
   };
@@ -97,12 +145,13 @@ class App extends Component {
 
   renderSwitch = route => {
     const {
+      loadUser,
       onInputChange,
       onButtonSubmit,
       onEnterSubmit,
       onRouteChange
     } = this;
-    const { image_url, box, isSignedIn } = this.state;
+    const { image_url, box, isSignedIn, user } = this.state;
 
     switch (route) {
       case "home":
@@ -110,7 +159,7 @@ class App extends Component {
           <div>
             <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
             <Logo />
-            <Rank />
+            <Rank name={user.name} entries={user.entries} />
             <ImageLinkForm
               onInputChange={onInputChange}
               onButtonSubmit={onButtonSubmit}
@@ -124,7 +173,7 @@ class App extends Component {
         return (
           <div>
             <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
-            <SignIn onRouteChange={onRouteChange} />
+            <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );
 
@@ -132,7 +181,7 @@ class App extends Component {
         return (
           <div>
             <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
-            <Register onRouteChange={onRouteChange} />
+            <Register onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );
 
@@ -140,7 +189,7 @@ class App extends Component {
         return (
           <div>
             <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
-            <SignIn onRouteChange={onRouteChange} />
+            <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );
     }
