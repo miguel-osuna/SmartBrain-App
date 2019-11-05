@@ -2,7 +2,6 @@
 import React, { Component } from "react";
 import particleAnimation from "./particlesjs-config.json";
 import Particles from "react-particles-js";
-import Clarifai from "clarifai";
 
 // User Components
 import Navigation from "../Components/Navigation/Navigation.js";
@@ -14,8 +13,22 @@ import SignIn from "../Components/SignIn/SignIn.js";
 import Register from "../Components/Register/Register.js";
 import "./App.css";
 
-// Initialize with API Key
-const app = new Clarifai.App({ apiKey: "f73fa5b8f7e946c3820224301837db65" });
+// Initial State
+const initial_state = {
+  user_input: "",
+  image_url: "",
+  box: {},
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    password: "",
+    entries: 0,
+    joined: ""
+  }
+};
 
 class App extends Component {
   // React Component Constructor
@@ -77,15 +90,17 @@ class App extends Component {
     this.setState({ image_url: this.state.user_input });
 
     // API Promise
-    app.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL,
-        // Using image_url can lead to a 404 Bad Request
-        this.state.user_input
-      )
+    fetch("https://dry-beyond-31484.herokuapp.com/imageurl", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input: this.state.user_input
+      })
+    })
+      .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch("http://localhost:5000/image", {
+          fetch("https://dry-beyond-31484.herokuapp.com/image", {
             method: "put",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -107,16 +122,17 @@ class App extends Component {
     if (event.keyCode === 13) {
       this.setState({ image_url: this.state.user_input });
 
-      // API Promise
-      app.models
-        .predict(
-          Clarifai.FACE_DETECT_MODEL,
-          // Using image_url can lead to a 404 Bad Request
-          this.state.user_input
-        )
+      fetch("https://dry-beyond-31484.herokuapp.com/imageurl", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: this.state.user_input
+        })
+      })
+        .then(response => response.json())
         .then(response => {
           if (response) {
-            fetch("http://localhost:5000/image", {
+            fetch("https://dry-beyond-31484.herokuapp.com/image", {
               method: "put",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -137,9 +153,11 @@ class App extends Component {
   };
 
   onRouteChange = route => {
-    route === "home"
-      ? this.setState({ isSignedIn: true })
-      : this.setState({ isSignedIn: false });
+    if (route === "signout") {
+      this.setState(initial_state);
+    } else if (route === "home") {
+      this.setState({ isSignedIn: true });
+    }
     this.setState({ route: route });
   };
 
