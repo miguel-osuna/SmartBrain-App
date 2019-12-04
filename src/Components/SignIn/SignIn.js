@@ -1,5 +1,8 @@
 import React, { Fragment, Component } from "react";
 
+// Load environmental variables
+require("dotenv").config({ path: "../../../.env", encoding: "utf8" });
+
 class SignIn extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +21,7 @@ class SignIn extends Component {
   };
 
   onSubmitSignIn = () => {
-    fetch("https://dry-beyond-31484.herokuapp.com/signin", {
+    fetch(process.env.ROUTE_SIGNIN, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

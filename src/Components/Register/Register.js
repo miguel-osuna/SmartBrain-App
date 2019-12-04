@@ -1,5 +1,8 @@
 import React, { Fragment, Component } from "react";
 
+// Load environmental variables
+require("dotenv").config({ path: "../../../.env", encoding: "utf8" });
+
 // const Register = ({ onRouteChange }) =>
 class Register extends Component {
   constructor(props) {

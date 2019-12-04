@@ -13,6 +13,9 @@ import SignIn from "../Components/SignIn/SignIn.js";
 import Register from "../Components/Register/Register.js";
 import "./App.css";
 
+// Load environmental variables
+require("dotenv").config({ path: "../../.env", encoding: "utf8" });
+
 // Initial State
 const initial_state = {
   user_input: "",
@@ -90,7 +93,7 @@ class App extends Component {
     this.setState({ image_url: this.state.user_input });
 
     // API Promise
-    fetch("https://dry-beyond-31484.herokuapp.com/imageurl", {
+    fetch(process.env.ROUTE_IMAGEURL, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -100,7 +103,7 @@ class App extends Component {
       .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch("https://dry-beyond-31484.herokuapp.com/image", {
+          fetch(process.env.ROUTE_IMAGE, {
             method: "put",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -122,7 +125,7 @@ class App extends Component {
     if (event.keyCode === 13) {
       this.setState({ image_url: this.state.user_input });
 
-      fetch("https://dry-beyond-31484.herokuapp.com/imageurl", {
+      fetch(process.env.ROUTE_IMAGEURL, {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -132,7 +135,7 @@ class App extends Component {
         .then(response => response.json())
         .then(response => {
           if (response) {
-            fetch("https://dry-beyond-31484.herokuapp.com/image", {
+            fetch(process.env.ROUTE_IMAGE, {
               method: "put",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

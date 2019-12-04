@@ -6,6 +6,7 @@
   "dependencies": {
     "clarifai": "^2.9.1",
     "create-react-app": "^3.2.0",
+    "dotenv": "^8.2.0",
     "gh-pages": "^2.1.1",
     "node": "^12.13.0",
     "npm": "^6.12.0",
