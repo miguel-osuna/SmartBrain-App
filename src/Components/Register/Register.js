@@ -1,8 +1,5 @@
 import React, { Fragment, Component } from "react";
 
-// Load environmental variables
-require("dotenv").config({ path: "../../../.env", encoding: "utf8" });
-
 // const Register = ({ onRouteChange }) =>
 class Register extends Component {
   constructor(props) {
@@ -27,7 +24,7 @@ class Register extends Component {
   };
 
   onSubmitRegister = () => {
-    fetch("https://dry-beyond-31484.herokuapp.com/register", {
+    fetch(process.env.REACT_APP_ROUTE_REGISTER, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

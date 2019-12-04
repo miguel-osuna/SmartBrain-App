@@ -1,8 +1,5 @@
 import React, { Fragment, Component } from "react";
 
-// Load environmental variables
-require("dotenv").config({ path: "../../../.env", encoding: "utf8" });
-
 class SignIn extends Component {
   constructor(props) {
     super(props);
@@ -21,7 +18,7 @@ class SignIn extends Component {
   };
 
   onSubmitSignIn = () => {
-    fetch(process.env.ROUTE_SIGNIN, {
+    fetch(process.env.REACT_APP_ROUTE_SIGN_IN, {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
