@@ -90,7 +90,7 @@ class App extends Component {
     this.setState({ image_url: this.state.user_input });
 
     // API Promise
-    fetch(process.env.REACT_APP_ROUTE_IMAGE_URL, {
+    fetch(process.env.REACT_APP_HOME_PAGE + "/imageurl", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -100,7 +100,7 @@ class App extends Component {
       .then(response => response.json())
       .then(response => {
         if (response) {
-          fetch(process.env.REACT_APP_ROUTE_IMAGE, {
+          fetch(process.env.REACT_APP_HOME_PAGE + "/image", {
             method: "put",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -122,7 +122,7 @@ class App extends Component {
     if (event.keyCode === 13) {
       this.setState({ image_url: this.state.user_input });
 
-      fetch(process.env.REACT_APP_ROUTE_IMAGE_URL, {
+      fetch(process.env.REACT_APP_HOME_PAGE + "/imageurl", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -132,7 +132,7 @@ class App extends Component {
         .then(response => response.json())
         .then(response => {
           if (response) {
-            fetch(process.env.ROUTE_IMAGE, {
+            fetch(process.env.REACT_APP_HOME_PAGE + "/image", {
               method: "put",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

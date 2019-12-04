@@ -18,7 +18,7 @@ class SignIn extends Component {
   };
 
   onSubmitSignIn = () => {
-    fetch(process.env.REACT_APP_ROUTE_SIGN_IN, {
+    fetch(process.env.REACT_APP_HOME_PAGE + "/signin", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
