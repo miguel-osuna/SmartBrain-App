@@ -41,17 +41,11 @@ $ cd Smartbrain-App
 $ git remote remove origin
 ```
 
-Create a .env with the following replacing the value that's in caps
+Create a .env with the content of .env_sample, replacing your client's url with the value in caps. 
 
 ```
-REACT_APP_HOME_PAGE = http://localhost:3000
-REACT_APP_HOME_PAGE_2 = YOUR_CLIENT_HOMEPAGE
-```
-
-Now create a .env_sample with the following, replacing the value that's in caps
-
-```
-REACT_APP_HOME_PAGE = YOUR_SERVER_HOMEPAGE
+REACT_APP_HOME_PAGE = 
+localhost:3000
 ```
 
 Create React App will be installed under _react-scripts_ when all dependencies are installed
@@ -69,6 +63,11 @@ _Once your server has started, go to `http://localhost:3000/` and you will see t
 ## :rocket: Deployment
 
 Once you are ready to deploy your project, read the [following tutorial](https://create-react-app.dev/docs/deployment/) to choose your hosting
+
+Don't forget to replace the .env variables with your hosting url
+```
+REACT_APP_HOME_PAGE = https://app_name.hostingservice.com
+```
 
 ## :wrench: Built With
 
