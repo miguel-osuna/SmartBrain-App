@@ -41,10 +41,10 @@ $ cd Smartbrain-App
 $ git remote remove origin
 ```
 
-Create a .env with the content of .env_sample, replacing your client's url with the value in caps. 
+Create a .env with the content of .env_sample, replacing your client's url with the value in caps.
 
 ```
-REACT_APP_HOME_PAGE = 
+REACT_APP_HOME_PAGE =
 localhost:3000
 ```
 
@@ -65,15 +65,12 @@ _Once your server has started, go to `http://localhost:3000/` and you will see t
 Once you are ready to deploy your project, read the [following tutorial](https://create-react-app.dev/docs/deployment/) to choose your hosting
 
 Don't forget to replace the .env variables with your hosting url
+
 ```
 REACT_APP_HOME_PAGE = https://app_name.hostingservice.com
 ```
 
 ## :wrench: Built With
-
-List all the technologies and tools used for the project.
-
-EXAMPLE:
 
 - [React](https://reactjs.org/) - Front-End JavaScript library
 - [Heroku](https://heroku.com/) - Hosting Platform
