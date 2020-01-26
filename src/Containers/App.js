@@ -17,7 +17,7 @@ import "./App.css";
 const initial_state = {
   user_input: "",
   image_url: "",
-  box: {},
+  boxes: {},
   route: "signin",
   isSignedIn: false,
   user: {
@@ -37,7 +37,7 @@ class App extends Component {
     this.state = {
       user_input: "",
       image_url: "",
-      box: {},
+      boxes: [],
       route: "signin",
       isSignedIn: false,
       user: {
@@ -69,21 +69,29 @@ class App extends Component {
   };
 
   calculateFaceLimits = data => {
-    const box_limits = data.outputs[0].data.regions[0].region_info.bounding_box;
     const image = document.getElementById("image");
     const width = Number(image.width);
     const height = Number(image.height);
+    // const box_limits = data.outputs[0].data.regions[0].region_info.bounding_box;
 
-    return {
-      top_row: height * box_limits.top_row,
-      bottom_row: height * (1 - box_limits.bottom_row),
-      left_col: width * box_limits.left_col,
-      right_col: width * (1 - box_limits.right_col)
-    };
+    const boxes_limits = data.outputs[0].data.regions.map(region => {
+      return region.region_info.bounding_box;
+    });
+
+    const face_boxes = boxes_limits.map(box_limits => {
+      return {
+        top_row: height * box_limits.top_row,
+        bottom_row: height * (1 - box_limits.bottom_row),
+        left_col: width * box_limits.left_col,
+        right_col: width * (1 - box_limits.right_col)
+      };
+    });
+
+    return face_boxes;
   };
 
-  displayFaceLimits = box => {
-    this.setState({ box: box });
+  displayFaceLimits = boxes => {
+    this.setState({ boxes: boxes });
   };
 
   onButtonSubmit = () => {
@@ -112,7 +120,12 @@ class App extends Component {
               this.setState(Object.assign(this.state.user, { entries: count }));
             });
         }
-        this.displayFaceLimits(this.calculateFaceLimits(response));
+
+        const boxes = this.calculateFaceLimits(response);
+        this.setState(
+          Object.assign(this.state.user, { entries: boxes.length })
+        );
+        this.displayFaceLimits(boxes);
       })
       .catch(err => console.log(err));
   };
@@ -169,7 +182,7 @@ class App extends Component {
       onEnterSubmit,
       onRouteChange
     } = this;
-    const { image_url, box, isSignedIn, user } = this.state;
+    const { image_url, boxes, isSignedIn, user } = this.state;
 
     switch (route) {
       case "home":
@@ -183,7 +196,7 @@ class App extends Component {
               onButtonSubmit={onButtonSubmit}
               onEnterSubmit={onEnterSubmit}
             />
-            <ImageDetection image_url={image_url} box={box} />
+            <ImageDetection image_url={image_url} boxes={boxes} />
           </div>
         );
 
