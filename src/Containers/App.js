@@ -11,6 +11,8 @@ import ImageLinkForm from "../Components/ImageLinkForm/ImageLinkForm.js";
 import ImageDetection from "../Components/ImageDetection/ImageDetection.js";
 import SignIn from "../Components/SignIn/SignIn.js";
 import Register from "../Components/Register/Register.js";
+import Modal from "../Components/Modal/Modal.js";
+import Profile from "../Components/Profile/Profile.js";
 import "./App.css";
 
 // Initial State
@@ -20,13 +22,16 @@ const initial_state = {
   boxes: [],
   route: "signin",
   isSignedIn: false,
+  isProfileOpen: false,
   user: {
     id: "",
     name: "",
     email: "",
     password: "",
     entries: 0,
-    joined: ""
+    joined: "",
+    age: "",
+    occupation: ""
   }
 };
 
@@ -34,21 +39,37 @@ class App extends Component {
   // React Component Constructor
   constructor() {
     super();
-    this.state = {
-      user_input: "",
-      image_url: "",
-      boxes: [],
-      route: "signin",
-      isSignedIn: false,
-      user: {
-        id: "",
-        name: "",
-        email: "",
-        password: "",
-        entries: 0,
-        joined: ""
-      }
-    };
+    this.state = initial_state;
+  }
+
+  componentDidMount() {
+    const token = window.sessionStorage.getItem("token");
+    if (token) {
+      fetch(process.env.REACT_APP_HOME_PAGE + "/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: token }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.id) {
+            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.id}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+              }
+            })
+              .then(res => res.json())
+              .then(user => {
+                if (user && user.email) {
+                  this.loadUser(user);
+                  this.onRouteChange("home");
+                }
+              });
+          }
+        })
+        .catch(console.log);
+    }
   }
 
   loadUser = data => {
@@ -57,6 +78,8 @@ class App extends Component {
         id: data.id,
         name: data.name,
         email: data.email,
+        age: data.age,
+        occupation: data.occupation,
         entries: data.entries,
         joined: data.joined
       }
@@ -69,38 +92,44 @@ class App extends Component {
   };
 
   calculateFaceLimits = data => {
-    const image = document.getElementById("image");
-    const width = Number(image.width);
-    const height = Number(image.height);
-    // const box_limits = data.outputs[0].data.regions[0].region_info.bounding_box;
+    if (data && data.outputs) {
+      const image = document.getElementById("image");
+      const width = Number(image.width);
+      const height = Number(image.height);
+      // const box_limits = data.outputs[0].data.regions[0].region_info.bounding_box;
 
-    const boxes_limits = data.outputs[0].data.regions.map(region => {
-      return region.region_info.bounding_box;
-    });
+      const boxes_limits = data.outputs[0].data.regions.map(region => {
+        return region.region_info.bounding_box;
+      });
 
-    const face_boxes = boxes_limits.map(box_limits => {
-      return {
-        top_row: height * box_limits.top_row,
-        bottom_row: height * (1 - box_limits.bottom_row),
-        left_col: width * box_limits.left_col,
-        right_col: width * (1 - box_limits.right_col)
-      };
-    });
+      const face_boxes = boxes_limits.map(box_limits => {
+        return {
+          top_row: height * box_limits.top_row,
+          bottom_row: height * (1 - box_limits.bottom_row),
+          left_col: width * box_limits.left_col,
+          right_col: width * (1 - box_limits.right_col)
+        };
+      });
 
-    return face_boxes;
+      return face_boxes;
+    }
+    return;
   };
 
   displayFaceLimits = boxes => {
-    this.setState({ boxes: boxes });
+    if (boxes) {
+      this.setState({ boxes: boxes });
+    }
   };
 
   onButtonSubmit = () => {
     this.setState({ image_url: this.state.user_input });
+    const token = window.sessionStorage.getItem("token");
 
     // API Promise
     fetch(process.env.REACT_APP_HOME_PAGE + "/imageurl", {
       method: "post",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: token },
       body: JSON.stringify({
         input: this.state.user_input
       })
@@ -110,7 +139,10 @@ class App extends Component {
         if (response) {
           fetch(process.env.REACT_APP_HOME_PAGE + "/image", {
             method: "put",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token
+            },
             body: JSON.stringify({
               id: this.state.user.id
             })
@@ -174,21 +206,43 @@ class App extends Component {
     this.setState({ route: route });
   };
 
+  toggleModal = () => {
+    this.setState(prevState => ({
+      ...prevState,
+      isProfileOpen: !prevState.isProfileOpen
+    }));
+  };
+
   renderSwitch = route => {
     const {
       loadUser,
       onInputChange,
       onButtonSubmit,
       onEnterSubmit,
-      onRouteChange
+      onRouteChange,
+      toggleModal
     } = this;
-    const { image_url, boxes, isSignedIn, user } = this.state;
+    const { image_url, boxes, isSignedIn, isProfileOpen, user } = this.state;
 
     switch (route) {
       case "home":
         return (
           <div>
-            <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
+            <Navigation
+              onRouteChange={onRouteChange}
+              isSignedIn={isSignedIn}
+              toggleModal={toggleModal}
+            />
+            {isProfileOpen && (
+              <Modal>
+                <Profile
+                  isProfileOpen={isProfileOpen}
+                  toggleModal={toggleModal}
+                  loadUser={loadUser}
+                  user={user}
+                />
+              </Modal>
+            )}
             <Logo />
             <Rank name={user.name} entries={user.entries} />
             <ImageLinkForm
@@ -203,7 +257,11 @@ class App extends Component {
       case "signin":
         return (
           <div>
-            <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
+            <Navigation
+              onRouteChange={onRouteChange}
+              isSignedIn={isSignedIn}
+              toggleModal={toggleModal}
+            />
             <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );
@@ -211,7 +269,11 @@ class App extends Component {
       case "register":
         return (
           <div>
-            <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
+            <Navigation
+              onRouteChange={onRouteChange}
+              isSignedIn={isSignedIn}
+              toggleModal={toggleModal}
+            />
             <Register onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );
@@ -219,7 +281,11 @@ class App extends Component {
       default:
         return (
           <div>
-            <Navigation onRouteChange={onRouteChange} isSignedIn={isSignedIn} />
+            <Navigation
+              onRouteChange={onRouteChange}
+              isSignedIn={isSignedIn}
+              toggleModal={toggleModal}
+            />
             <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
           </div>
         );

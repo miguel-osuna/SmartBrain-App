@@ -1,10 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "tachyons";
 import "react-tilt";
 import "clarifai";
-import "./index.css";
 import App from "./Containers/App";
+
+// Dependencies
+import "bootstrap/dist/css/bootstrap.min.css";
+import "tachyons";
+import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(<App />, document.getElementById("root"));

@@ -1,17 +1,12 @@
 import React, { Fragment } from "react";
+import ProfileIcon from "../ProfileIcon/ProfileIcon";
 
-const Navigation = ({ onRouteChange, isSignedIn }) => {
+const Navigation = ({ onRouteChange, isSignedIn, toggleModal }) => {
   return (
     <Fragment>
       {isSignedIn ? (
         <nav style={{ display: "flex", justifyContent: "flex-end" }}>
-          <input
-            type="submit"
-            onClick={() => onRouteChange("signout")}
-            // className="white b br3 ph3 pv2 input-reset ba bg-transparent grow pointer f6 dib"
-            className="white bn ph5 pv4 pa3 pr5 pb3 ba bg-transparent f3 dib pointer link"
-            value="Sign Out"
-          />
+          <ProfileIcon onRouteChange={onRouteChange} toggleModal={toggleModal}/>
         </nav>
       ) : (
         <nav style={{ display: "flex", justifyContent: "flex-end" }}>

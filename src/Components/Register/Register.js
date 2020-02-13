@@ -23,7 +23,16 @@ class Register extends Component {
     this.setState({ register_password: event.target.value });
   };
 
+  saveAuthTokenInSessions = token => {
+    window.sessionStorage.setItem("token", token);
+  };
+
+  getAuthTokenInSessions = () => {
+    return window.sessionStorage.getItem("token");
+  };
+
   onSubmitRegister = () => {
+    console.log(process.env.REACT_APP_HOME_PAGE);
     fetch(process.env.REACT_APP_HOME_PAGE + "/register", {
       method: "post",
       headers: { "Content-Type": "application/json" },
@@ -34,10 +43,25 @@ class Register extends Component {
       })
     })
       .then(response => response.json())
-      .then(response => {
-        if (response.id) {
-          this.props.loadUser(response);
-          this.props.onRouteChange("home");
+      .then(data => {
+        if (data.userId && data.success === "true") {
+          this.saveAuthTokenInSessions(data.token);
+          if (data && data.userId) {
+            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: data.token
+              }
+            })
+              .then(res => res.json())
+              .then(user => {
+                if (user && user.email) {
+                  this.props.loadUser(user);
+                  this.props.onRouteChange("home");
+                }
+              });
+          }
         }
       });
   };

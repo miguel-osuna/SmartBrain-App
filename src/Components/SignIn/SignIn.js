@@ -17,20 +17,45 @@ class SignIn extends Component {
     this.setState({ signin_password: event.target.value });
   };
 
+  saveAuthTokenInSessions = token => {
+    window.sessionStorage.setItem("token", token);
+  };
+
+  getAuthTokenInSessions = () => {
+    return window.sessionStorage.getItem("token");
+  };
+
   onSubmitSignIn = () => {
     fetch(process.env.REACT_APP_HOME_PAGE + "/signin", {
       method: "post",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         email: this.state.signin_email,
         password: this.state.signin_password
       })
     })
       .then(response => response.json())
-      .then(user => {
-        if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange("home");
+      .then(data => {
+        if (data.userId && data.success === "true") {
+          this.saveAuthTokenInSessions(data.token);
+          if (data && data.userId) {
+            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: data.token
+              }
+            })
+              .then(res => res.json())
+              .then(user => {
+                if (user && user.email) {
+                  this.props.loadUser(user);
+                  this.props.onRouteChange("home");
+                }
+              });
+          }
         }
       });
   };
@@ -75,7 +100,6 @@ class SignIn extends Component {
                   className="white b br3 ph3 pv2 input-reset ba bg-transparent grow pointer f6 dib"
                   type="submit"
                   value="Sign in"
-                  // onClick={() => onRouteChange("home")}
                   onClick={() => onSubmitSignIn()}
                 />
               </div>
