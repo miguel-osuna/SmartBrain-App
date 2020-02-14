@@ -23,47 +23,44 @@ class Register extends Component {
     this.setState({ register_password: event.target.value });
   };
 
-  saveAuthTokenInSessions = token => {
-    window.sessionStorage.setItem("token", token);
-  };
+  onSubmitRegister = async () => {
+    const { saveAuthTokenInSessions, loadUser, onRouteChange } = this.props;
+    const res_register = await fetch(
+      process.env.REACT_APP_HOME_PAGE + "/register",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: this.state.register_name,
+          email: this.state.register_email,
+          password: this.state.register_password
+        })
+      }
+    );
 
-  getAuthTokenInSessions = () => {
-    return window.sessionStorage.getItem("token");
-  };
+    const data = await res_register.json();
 
-  onSubmitRegister = () => {
-    console.log(process.env.REACT_APP_HOME_PAGE);
-    fetch(process.env.REACT_APP_HOME_PAGE + "/register", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: this.state.register_name,
-        email: this.state.register_email,
-        password: this.state.register_password
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.userId && data.success === "true") {
-          this.saveAuthTokenInSessions(data.token);
-          if (data && data.userId) {
-            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: data.token
-              }
-            })
-              .then(res => res.json())
-              .then(user => {
-                if (user && user.email) {
-                  this.props.loadUser(user);
-                  this.props.onRouteChange("home");
-                }
-              });
+    if (data.userId && data.success === "true") {
+      saveAuthTokenInSessions(data.token);
+
+      const res_profile = await fetch(
+        process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: data.token
           }
         }
-      });
+      );
+
+      const user = await res_profile.json();
+
+      if (user && user.email) {
+        loadUser(user);
+        onRouteChange("home");
+      }
+    }
   };
 
   render() {
@@ -124,7 +121,6 @@ class Register extends Component {
                   className="white b br3 ph3 pv2 input-reset ba bg-transparent grow pointer f6 dib"
                   type="submit"
                   value="Register"
-                  // onClick={() => onRouteChange("signin")}
                   onClick={() => onSubmitRegister()}
                 />
               </div>

@@ -5,9 +5,6 @@ const ImageLinkForm = ({ onInputChange, onButtonSubmit, onEnterSubmit }) => {
   return (
     <Fragment>
       <div>
-        <p className="f3 white solid ">
-          {"This app will detect your image's faces"}
-        </p>
         <div className="center">
           <div className="center form pa4 br3 shadow-5">
             <input
@@ -21,8 +18,7 @@ const ImageLinkForm = ({ onInputChange, onButtonSubmit, onEnterSubmit }) => {
               className="w-30 grow f4 link ph3 pv2 dib white bg-light-blue"
               onClick={onButtonSubmit}
             >
-              {" "}
-              Detect{" "}
+              Detect
             </button>
           </div>
         </div>

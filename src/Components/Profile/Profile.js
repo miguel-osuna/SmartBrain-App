@@ -28,20 +28,26 @@ class Profile extends Component {
     }
   };
 
-  onProfileUpdate = data => {
-    const token = window.sessionStorage.getItem("token");
-    fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${this.props.user.id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: token },
-      body: JSON.stringify({ formInput: data })
-    })
-      .then(resp => {
-        if (resp.status === 200 || resp.status === 304) {
-          this.props.toggleModal();
-          this.props.loadUser({ ...this.props.user, ...data });
+  onProfileUpdate = async data => {
+    try {
+      const { getAuthTokenInSessions, toggleModal, loadUser } = this.props;
+      const token = getAuthTokenInSessions("token");
+      const res_profile = await fetch(
+        process.env.REACT_APP_HOME_PAGE + `/profile/${this.props.user.id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: token },
+          body: JSON.stringify({ formInput: data })
         }
-      })
-      .catch(console.log);
+      );
+
+      if (res_profile.status === 200 || res_profile.status === 304) {
+        toggleModal();
+        loadUser({ ...this.props.user, ...data });
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   render() {
@@ -57,7 +63,7 @@ class Profile extends Component {
                 className="h3 w3 dib"
                 alt="avatar"
               />
-              <h1> {this.state.name} </h1>
+              <h1> {name} </h1>
               <h4> {`Images Submitted: ${user.entries}`}</h4>
               <p>
                 {`Member since: ${new Date(user.joined).toLocaleDateString()}`}

@@ -23,6 +23,7 @@ class ProfileIcon extends Component {
 
   render() {
     const { dropdownOpen } = this.state;
+    const { onRouteChange, toggleModal, delAuthTokenInSessions } = this.props;
     return (
       <Fragment>
         <div className="pa4 tc">
@@ -47,10 +48,15 @@ class ProfileIcon extends Component {
                 left: "auto"
               }}
             >
-              <DropdownItem onClick={() => this.props.toggleModal()}>
+              <DropdownItem onClick={() => toggleModal()}>
                 View Profile
               </DropdownItem>
-              <DropdownItem onClick={() => this.props.onRouteChange("signout")}>
+              <DropdownItem
+                onClick={() => {
+                  delAuthTokenInSessions();
+                  onRouteChange("signout");
+                }}
+              >
                 Sign Out
               </DropdownItem>
             </DropdownMenu>

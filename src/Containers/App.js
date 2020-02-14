@@ -32,7 +32,8 @@ const initial_state = {
     joined: "",
     age: "",
     occupation: ""
-  }
+  },
+  faces: 0
 };
 
 class App extends Component {
@@ -42,33 +43,41 @@ class App extends Component {
     this.state = initial_state;
   }
 
-  componentDidMount() {
-    const token = window.sessionStorage.getItem("token");
+  async componentDidMount() {
+    const token = this.getAuthTokenInSessions();
     if (token) {
-      fetch(process.env.REACT_APP_HOME_PAGE + "/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: token }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.id) {
-            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.id}`, {
+      const res_signin = await fetch(
+        process.env.REACT_APP_HOME_PAGE + "/signin",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: token }
+        }
+      );
+
+      try {
+        const data = await res_signin.json();
+
+        if (data && data.id) {
+          const res_profile = await fetch(
+            process.env.REACT_APP_HOME_PAGE + `/profile/${data.id}`,
+            {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: token
               }
-            })
-              .then(res => res.json())
-              .then(user => {
-                if (user && user.email) {
-                  this.loadUser(user);
-                  this.onRouteChange("home");
-                }
-              });
+            }
+          );
+
+          const user = await res_profile.json();
+          if (user && user.email) {
+            this.loadUser(user);
+            this.onRouteChange("home");
           }
-        })
-        .catch(console.log);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
 
@@ -96,7 +105,6 @@ class App extends Component {
       const image = document.getElementById("image");
       const width = Number(image.width);
       const height = Number(image.height);
-      // const box_limits = data.outputs[0].data.regions[0].region_info.bounding_box;
 
       const boxes_limits = data.outputs[0].data.regions.map(region => {
         return region.region_info.bounding_box;
@@ -122,22 +130,29 @@ class App extends Component {
     }
   };
 
-  onButtonSubmit = () => {
-    this.setState({ image_url: this.state.user_input });
-    const token = window.sessionStorage.getItem("token");
+  onButtonSubmit = async () => {
+    try {
+      this.setState({ image_url: this.state.user_input });
+      const token = this.getAuthTokenInSessions("token");
 
-    // API Promise
-    fetch(process.env.REACT_APP_HOME_PAGE + "/imageurl", {
-      method: "post",
-      headers: { "Content-Type": "application/json", Authorization: token },
-      body: JSON.stringify({
-        input: this.state.user_input
-      })
-    })
-      .then(response => response.json())
-      .then(response => {
-        if (response) {
-          fetch(process.env.REACT_APP_HOME_PAGE + "/image", {
+      // API Promise
+      const res_imageurl = await fetch(
+        process.env.REACT_APP_HOME_PAGE + "/imageurl",
+        {
+          method: "post",
+          headers: { "Content-Type": "application/json", Authorization: token },
+          body: JSON.stringify({
+            input: this.state.user_input
+          })
+        }
+      );
+
+      const data = await res_imageurl.json();
+
+      if (data) {
+        const res_image = await fetch(
+          process.env.REACT_APP_HOME_PAGE + "/image",
+          {
             method: "put",
             headers: {
               "Content-Type": "application/json",
@@ -146,54 +161,69 @@ class App extends Component {
             body: JSON.stringify({
               id: this.state.user.id
             })
-          })
-            .then(response => response.json())
-            .then(count => {
-              this.setState(Object.assign(this.state.user, { entries: count }));
-            });
-        }
-
-        const boxes = this.calculateFaceLimits(response);
-        this.setState(
-          Object.assign(this.state.user, { entries: boxes.length })
+          }
         );
-        this.displayFaceLimits(boxes);
-      })
-      .catch(err => console.log(err));
+
+        const count = await res_image.json();
+        this.setState(Object.assign(this.state.user, { entries: count }));
+      }
+
+      const boxes = this.calculateFaceLimits(data);
+      this.setState(Object.assign(this.state.faces, { faces: boxes.length }));
+      this.displayFaceLimits(boxes);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  onEnterSubmit = event => {
-    // When Enter key is pressed
+  onEnterSubmit = async event => {
     if (event.keyCode === 13) {
-      this.setState({ image_url: this.state.user_input });
+      try {
+        this.setState({ image_url: this.state.user_input });
+        const token = this.getAuthTokenInSessions("token");
 
-      fetch(process.env.REACT_APP_HOME_PAGE + "/imageurl", {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: this.state.user_input
-        })
-      })
-        .then(response => response.json())
-        .then(response => {
-          if (response) {
-            fetch(process.env.REACT_APP_HOME_PAGE + "/image", {
+        // API Promise
+        const res_imageurl = await fetch(
+          process.env.REACT_APP_HOME_PAGE + "/imageurl",
+          {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token
+            },
+            body: JSON.stringify({
+              input: this.state.user_input
+            })
+          }
+        );
+
+        const data = await res_imageurl.json();
+
+        if (data) {
+          const res_image = await fetch(
+            process.env.REACT_APP_HOME_PAGE + "/image",
+            {
               method: "put",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token
+              },
               body: JSON.stringify({
                 id: this.state.user.id
               })
-            })
-              .then(response => response.json())
-              .then(count => {
-                this.setState(
-                  Object.assign(this.state.user, { entries: count })
-                );
-              });
-          }
-          this.displayFaceLimits(this.calculateFaceLimits(response));
-        })
-        .catch(err => console.log(err));
+            }
+          );
+
+          const count = await res_image.json();
+          this.setState(Object.assign(this.state.user, { entries: count }));
+        }
+
+        const boxes = this.calculateFaceLimits(data);
+        this.setState(Object.assign(this.state.faces, { faces: boxes.length }));
+        this.displayFaceLimits(boxes);
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
@@ -213,6 +243,18 @@ class App extends Component {
     }));
   };
 
+  saveAuthTokenInSessions = token => {
+    window.sessionStorage.setItem("token", token);
+  };
+
+  getAuthTokenInSessions = () => {
+    return window.sessionStorage.getItem("token");
+  };
+
+  delAuthTokenInSessions = () => {
+    window.sessionStorage.removeItem("token");
+  };
+
   renderSwitch = route => {
     const {
       loadUser,
@@ -220,9 +262,19 @@ class App extends Component {
       onButtonSubmit,
       onEnterSubmit,
       onRouteChange,
-      toggleModal
+      toggleModal,
+      saveAuthTokenInSessions,
+      getAuthTokenInSessions,
+      delAuthTokenInSessions
     } = this;
-    const { image_url, boxes, isSignedIn, isProfileOpen, user } = this.state;
+    const {
+      image_url,
+      boxes,
+      isSignedIn,
+      isProfileOpen,
+      user,
+      faces
+    } = this.state;
 
     switch (route) {
       case "home":
@@ -232,6 +284,7 @@ class App extends Component {
               onRouteChange={onRouteChange}
               isSignedIn={isSignedIn}
               toggleModal={toggleModal}
+              delAuthTokenInSessions={delAuthTokenInSessions}
             />
             {isProfileOpen && (
               <Modal>
@@ -240,11 +293,12 @@ class App extends Component {
                   toggleModal={toggleModal}
                   loadUser={loadUser}
                   user={user}
+                  getAuthTokenInSessions={getAuthTokenInSessions}
                 />
               </Modal>
             )}
             <Logo />
-            <Rank name={user.name} entries={user.entries} />
+            <Rank name={user.name} entries={user.entries} faces={faces} />
             <ImageLinkForm
               onInputChange={onInputChange}
               onButtonSubmit={onButtonSubmit}
@@ -261,8 +315,13 @@ class App extends Component {
               onRouteChange={onRouteChange}
               isSignedIn={isSignedIn}
               toggleModal={toggleModal}
+              delAuthTokenInSessions={delAuthTokenInSessions}
             />
-            <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
+            <SignIn
+              onRouteChange={onRouteChange}
+              loadUser={loadUser}
+              saveAuthTokenInSessions={saveAuthTokenInSessions}
+            />
           </div>
         );
 
@@ -273,8 +332,13 @@ class App extends Component {
               onRouteChange={onRouteChange}
               isSignedIn={isSignedIn}
               toggleModal={toggleModal}
+              delAuthTokenInSessions={delAuthTokenInSessions}
             />
-            <Register onRouteChange={onRouteChange} loadUser={loadUser} />
+            <Register
+              onRouteChange={onRouteChange}
+              loadUser={loadUser}
+              saveAuthTokenInSessions={saveAuthTokenInSessions}
+            />
           </div>
         );
 
@@ -285,8 +349,13 @@ class App extends Component {
               onRouteChange={onRouteChange}
               isSignedIn={isSignedIn}
               toggleModal={toggleModal}
+              delAuthTokenInSessions={delAuthTokenInSessions}
             />
-            <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
+            <SignIn
+              onRouteChange={onRouteChange}
+              loadUser={loadUser}
+              saveAuthTokenInSessions={saveAuthTokenInSessions}
+            />
           </div>
         );
     }

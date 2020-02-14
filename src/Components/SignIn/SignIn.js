@@ -17,47 +17,46 @@ class SignIn extends Component {
     this.setState({ signin_password: event.target.value });
   };
 
-  saveAuthTokenInSessions = token => {
-    window.sessionStorage.setItem("token", token);
-  };
+  onSubmitSignIn = async () => {
+    const { saveAuthTokenInSessions, loadUser, onRouteChange } = this.props;
+    const res_signin = await fetch(
+      process.env.REACT_APP_HOME_PAGE + "/signin",
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: this.state.signin_email,
+          password: this.state.signin_password
+        })
+      }
+    );
 
-  getAuthTokenInSessions = () => {
-    return window.sessionStorage.getItem("token");
-  };
+    const data = await res_signin.json();
 
-  onSubmitSignIn = () => {
-    fetch(process.env.REACT_APP_HOME_PAGE + "/signin", {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: this.state.signin_email,
-        password: this.state.signin_password
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.userId && data.success === "true") {
-          this.saveAuthTokenInSessions(data.token);
-          if (data && data.userId) {
-            fetch(process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: data.token
-              }
-            })
-              .then(res => res.json())
-              .then(user => {
-                if (user && user.email) {
-                  this.props.loadUser(user);
-                  this.props.onRouteChange("home");
-                }
-              });
+    if (data.userId && data.success === "true") {
+      saveAuthTokenInSessions(data.token);
+      if (data && data.userId) {
+        const res_profile = await fetch(
+          process.env.REACT_APP_HOME_PAGE + `/profile/${data.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: data.token
+            }
           }
+        );
+
+        const user = await res_profile.json();
+
+        if (user && user.email) {
+          loadUser(user);
+          onRouteChange("home");
         }
-      });
+      }
+    }
   };
 
   render() {
